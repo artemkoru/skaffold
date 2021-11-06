@@ -303,10 +303,11 @@ func TestGetBuildArgs(t *testing.T) {
 		},
 		{
 			description: "cache from",
+			env:         []string{"FOO=bar"},
 			artifact: &latestV1.DockerArtifact{
-				CacheFrom: []string{"gcr.io/foo/bar", "baz:latest"},
+				CacheFrom: []string{"gcr.io/foo/bar", "baz:latest", "{{.FOO}}"},
 			},
-			want: []string{"--cache-from", "gcr.io/foo/bar", "--cache-from", "baz:latest"},
+			want: []string{"--cache-from", "gcr.io/foo/bar", "--cache-from", "baz:latest", "--cache-from", "bar"},
 		},
 		{
 			description: "additional CLI flags",

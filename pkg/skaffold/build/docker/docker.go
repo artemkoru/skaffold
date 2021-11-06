@@ -116,17 +116,21 @@ func (b *Builder) pullCacheFromImages(ctx context.Context, out io.Writer, a *lat
 	}
 
 	for _, image := range a.CacheFrom {
-		imageID, err := b.localDocker.ImageID(ctx, image)
+		imageName, err := util.ExpandEnvTemplateOrFail(image, nil)
 		if err != nil {
-			return fmt.Errorf("getting imageID for %q: %w", image, err)
+			return fmt.Errorf("cannot parse the docker artifact cacheFrom template: %s", image)
+		}
+		imageID, err := b.localDocker.ImageID(ctx, imageName)
+		if err != nil {
+			return fmt.Errorf("getting imageID for %q: %w", imageName, err)
 		}
 		if imageID != "" {
 			// already pulled
 			continue
 		}
 
-		if err := b.localDocker.Pull(ctx, out, image); err != nil {
-			warnings.Printf("cacheFrom image couldn't be pulled: %s\n", image)
+		if err := b.localDocker.Pull(ctx, out, imageName); err != nil {
+			warnings.Printf("cacheFrom image couldn't be pulled: %s\n", imageName)
 		}
 	}
 

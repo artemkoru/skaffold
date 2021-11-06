@@ -45,6 +45,7 @@ import (
 	sErrors "github.com/GoogleContainerTools/skaffold/pkg/skaffold/errors"
 	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/output/log"
 	latestV1 "github.com/GoogleContainerTools/skaffold/pkg/skaffold/schema/latest/v1"
+	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/util"
 	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/util/term"
 )
 
@@ -616,7 +617,8 @@ func ToCLIBuildArgs(a *latestV1.DockerArtifact, evaluatedArgs map[string]*string
 	}
 
 	for _, from := range a.CacheFrom {
-		args = append(args, "--cache-from", from)
+		imageFrom, _ := util.ExpandEnvTemplateOrFail(from, nil)
+		args = append(args, "--cache-from", imageFrom)
 	}
 
 	args = append(args, a.CliFlags...)
